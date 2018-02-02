@@ -46,7 +46,7 @@ Add this package to a project that contains .proto files to be compiled to code.
 It contains the compilers, include files and project system integration for gRPC
 and Protocol buffer service description files necessary to build them on Windows,
 Linux and MacOS. Managed runtime is supplied separately in the Grpc.Core package.</Description>
-    <Copyright>Copyright 2017 gRPC authors</Copyright>
+    <Copyright>Copyright 2018 gRPC authors</Copyright>
     <Authors>gRPC authors</Authors>
     <PackageLicenseUrl>https://github.com/grpc/grpc/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/grpc/grpc</PackageProjectUrl>
