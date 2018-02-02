@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <!-- For a native project we currently only resolve tools and import paths. -->
+  <Protobuf_ProtocFullPath>$(MSBuildThisFileDirectory)bin\windows\protoc.exe</Protobuf_ProtocFullPath>
+  <Protobuf_StandardImportsPath>$(MSBuildThisFileDirectory)bin\include\</Protobuf_StandardImportsPath>
+  <gRPC_PluginFullPath>$(MSBuildThisFileDirectory)bin\windows\grpc_cpp_plugin.exe</gRPC_PluginFullPath>
+</Project>
