@@ -64,7 +64,7 @@
     "Grpc.Tools.Tests.CSharpGeneratorTests",
     "Grpc.Tools.Tests.GeneratorTests",
     "Grpc.Tools.Tests.ProtoCompileBasicTests",
-    "Grpc.Tools.Tests.ProtoCompileCommandLineGeneratorSuccessTests",
+    "Grpc.Tools.Tests.ProtoCompileCommandLineGeneratorTests",
     "Grpc.Tools.Tests.ProtoCompileCommandLinePrinterTests",
     "Grpc.Tools.Tests.ProtoToolsPlatformTaskTests",
     "Grps.Tools.Tests.DepFileUtilTests"
