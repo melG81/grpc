@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-    <!-- We allow a non-C# generator be set by the user, but skip adding ouputs to Compile in this case. -->
+    <!-- We allow a non-C# generator be set by the user, but skip adding outputs to Compile in this case. -->
     <Protobuf_Generator Condition=" '$(Protobuf_Generator)' == '' and '$(Language)' == 'C#' ">CSharp</Protobuf_Generator>
     <!-- Configuration is passing the smoke test. -->
     <Protobuf_ProjectSupported Condition=" '$(Protobuf_Generator)' != '' ">true</Protobuf_ProjectSupported>
@@ -25,7 +25,7 @@
     <ProtoBuf>
       <Access Condition="'%(ProtoBuf.Access)' == '' ">Public</Access>
       <ProtoCompile Condition="'%(ProtoBuf.ProtoCompile)' == '' ">True</ProtoCompile>
-      <ProtoRoot Condition="'%(ProtoBuf.ProtoRoot)' == '' ">.</ProtoRoot>
+      <ProtoRoot Condition="'%(ProtoBuf.ProtoRoot)' == '' " />
       <CompileOutputs Condition="'%(ProtoBuf.CompileOutputs)' == ''">True</CompileOutputs>
       <OutputDir Condition="'%(ProtoBuf.OutputDir)' == '' ">$(Protobuf_OutputPath)</OutputDir>
     </ProtoBuf>
@@ -106,15 +106,37 @@
 
   <!-- Do proto compilation by default in a C# project. In other types, the user invoke
        Protobuf_Compile directly where required. -->
-  <!-- TODO(kkm): Shared compile in outer multitarget project. -->
+  <!-- TODO(kkm): Do shared compile in outer multitarget project? -->
   <Target Name="_Protobuf_Compile_BeforeCsCompile"
           BeforeTargets="BeforeCompile"
           DependsOnTargets="Protobuf_Compile"
           Condition=" '$(Language)' == 'C#' " />
 
   <Target Name="_Protobuf_SelectFiles">
+    <!-- Guess .proto root for the files. Whenever the root is set for a file explicitly,
+         leave it as is. Otherwise, for files under the project directory, set the root
+         to "." for the project's directory, as it is the current when compiling; for the
+         files outside of project directory, use each .proto file's directory as the root. -->
+    <FindUnderPath Path="$(MSBuildProjectDirectory)"
+                   Files="@(ProtoBuf->WithMetadataValue('ProtoRoot',''))">
+      <Output TaskParameter="InPath" ItemName="_Protobuf_NoRootInProject"/>
+      <Output TaskParameter="OutOfPath" ItemName="_Protobuf_NoRootElsewhere"/>
+    </FindUnderPath>
     <ItemGroup>
-      <Protobuf_Compile Include="@(ProtoBuf)" Condition=" '%(ProtoCompile)' != 'false' ">
+      <!-- Files with explicit metadata. -->
+      <Protobuf_Compile Include="@(ProtoBuf->HasMetadata('ProtoRoot'))" />
+      <!-- In-project files will have ProtoRoot='.'. -->
+      <Protobuf_Compile Include="@(_Protobuf_NoRootInProject)">
+        <ProtoRoot>.</ProtoRoot>
+      </Protobuf_Compile>
+      <!-- Out-of-project files will have respective ProtoRoot='%(RelativeDir)'. -->
+      <Protobuf_Compile Include="@(_Protobuf_NoRootElsewhere)">
+        <ProtoRoot>%(RelativeDir)</ProtoRoot>
+      </Protobuf_Compile>
+      <!-- Remove files not for compile. -->
+      <Protobuf_Compile Remove="@(Protobuf_Compile)" Condition=" !%(ProtoCompile) " />
+      <!-- Ensure invariant Source=%(Identity). -->
+      <Protobuf_Compile>
         <Source>%(Identity)</Source>
       </Protobuf_Compile>
     </ItemGroup>
@@ -134,7 +156,7 @@
                           Generator="$(Protobuf_Generator)">
       <Output TaskParameter="PossibleOutputs" ItemName="Protobuf_ExpectedOutputs" />
     </ProtoCompilerOutputs>
-    <!-- Read any depndency files from previous compiles. -->
+    <!-- Read any dependency files from previous compiles. -->
     <ProtoReadDependencies Condition=" '$(Protobuf_DepFilesPath)' != '' and '$(DesignTimeBuild)' != 'true' "
                            ProtoBuf="@(Protobuf_Compile)"
                            ProtoDepDir="$(Protobuf_DepFilesPath)" >
@@ -148,7 +170,7 @@
           Condition=" '$(Language)' == 'C#' ">
     <ItemGroup>
       <_Protobuf_CodeCompile Include="@(Protobuf_ExpectedOutputs->Distinct())"
-                             Condition=" '%(Source)' != '' and '@(Protobuf_Compile->WithMetadataValue('CompileOutputs', 'true'))' != '' " />
+         Condition=" '%(Source)' != '' and '@(Protobuf_Compile->WithMetadataValue('CompileOutputs', 'true'))' != '' " />
       <Compile Include="@(_Protobuf_CodeCompile)" />
     </ItemGroup>
   </Target>
@@ -184,7 +206,7 @@
   </Target>
 
   <Target Name="_Protobuf_GatherStaleSimple">
-    <!-- Simple selecton: always compile files that have no declared outputs (but warn below). -->
+    <!-- Simple selection: always compile files that have no declared outputs (but warn below). -->
     <ItemGroup>
       <_Protobuf_OutOfDateProto Include="@(Protobuf_Compile)"
                                 Condition = " '%(Source)' != '' and '@(Protobuf_ExpectedOutputs)' == '' ">
@@ -204,7 +226,7 @@
           Inputs="@(Protobuf_Compile);%(Source);@(Protobuf_Dependencies);$(MSBuildAllProjects)"
           Outputs="@(Protobuf_ExpectedOutputs)" >
     <!-- The '_Exec' metadatum is set to distinguish really executed items from those MSBuild so
-         "helpfully" infers in a bucketed task. For the same reason, cannot use the the intrinsic
+         "helpfully" infers in a bucketed task. For the same reason, cannot use the intrinsic
          ItemGroup task here. -->
     <CreateItem Include="@(Protobuf_Compile)" AdditionalMetadata="_Exec=true">
       <Output TaskParameter="Include" ItemName="_Protobuf_OutOfDateProto"/>
@@ -310,7 +332,7 @@
        files will be always recompiled with a warning, unless you add expectations
        to the Protobuf_ExpectedOutputs collection.
 
-       Note this is like Protobuf_PrepareCompile, but uses @(Protobuf) regardelss
+       Note this is like Protobuf_PrepareCompile, but uses @(Protobuf) regardless
        of the Compile metadata, to remove all possible outputs. Plugins should err
        on the side of overextending the Protobuf_ExpectedOutputs here.
        All inferred ExpectedOutputs will be removed. -->

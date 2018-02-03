@@ -72,8 +72,8 @@ namespace Grpc.Tools {
           Os = OsKind.MacOsX;
         } else if (plat == PlatformID.Unix || (int)plat == 128) {
           // TODO(kkm): This is how Mono detects OSX internally. Looks cheesy
-          // to me. Would not testing for /proc be more reliable? OSX did not
-          // have /proc at all AFAICR.
+          // to me. Would not testing for /proc absence be more reliable? OSX
+          // did never have it, AFAIK.
           Os = File.Exists("/usr/lib/libc.dylib") ? OsKind.MacOsX : OsKind.Linux;
         }
       }

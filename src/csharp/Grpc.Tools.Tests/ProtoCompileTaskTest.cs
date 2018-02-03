@@ -68,7 +68,7 @@ namespace Grpc.Tools.Tests {
     }
   };
 
-  internal class ProtoCompileCommandLineGeneratorSuccessTests : ProtoCompileBasicTests {
+  internal class ProtoCompileCommandLineGeneratorTests : ProtoCompileBasicTests {
     [SetUp]
     public new void SetUp() {
       _task.Generator = "csharp";
@@ -131,7 +131,7 @@ namespace Grpc.Tools.Tests {
     [Test]
     public void OutputDependencyFile() {
       _task.DependencyOut = "foo/my.protodep";
-      // Task expectedly fails reading the generated file; we ignore that.
+      // Task fails trying to read the non-generated file; we ignore that.
       _task.Execute();
       Assert.That(_task.LastResponseFile,
         Does.Contain("--dependency_out=foo/my.protodep"));
@@ -140,7 +140,7 @@ namespace Grpc.Tools.Tests {
     [Test]
     public void OutputDependencyWithProtoDepDir() {
       _task.ProtoDepDir = "foo";
-      // Task expectedly fails reading the generated file; we ignore that.
+      // Task fails trying to read the non-generated file; we ignore that.
       _task.Execute();
       Assert.That(_task.LastResponseFile,
         Has.One.Match(@"^--dependency_out=foo[/\\].+_a.protodep$"));
@@ -169,7 +169,40 @@ namespace Grpc.Tools.Tests {
       _task.GrpcPluginExe = "/foo/grpcgen";
       _task.GrpcOutputOptions = new[] { "baz", "quux" };
       ExecuteExpectSuccess();
-      Assert.That(_task.LastResponseFile, Does.Contain("--grpc_opt=baz,quux"));
+      Assert.That(_task.LastResponseFile,
+                  Does.Contain("--grpc_opt=baz,quux"));
+    }
+
+    [Test]
+    public void DirectoryArgumentsSlashTrimmed() {
+      _task.GrpcPluginExe = "/foo/grpcgen";
+      _task.GrpcOutputDir = "gen-out/";
+      _task.OutputDir = "outdir/";
+      _task.ProtoPath = new[] { "/path1/", "/path2/" };
+      ExecuteExpectSuccess();
+      Assert.That(_task.LastResponseFile, Is.SupersetOf(new[] {
+        "--proto_path=/path1", "--proto_path=/path2",
+        "--csharp_out=outdir", "--grpc_out=gen-out" }));
+    }
+
+    [TestCase("."      , ".")]
+    [TestCase("/"      , "/")]
+    [TestCase("//"     , "/")]
+    [TestCase("/foo/"  , "/foo")]
+    [TestCase("/foo"   , "/foo")]
+    [TestCase("foo/"   , "foo")]
+    [TestCase("foo//"  , "foo")]
+    [TestCase("foo/\\" , "foo")]
+    [TestCase("foo\\/" , "foo")]
+    [TestCase("C:\\foo", "C:\\foo")]
+    [TestCase("C:"     , "C:")]
+    [TestCase("C:\\"   , "C:\\")]
+    [TestCase("C:\\\\" , "C:\\")]
+    public void DirectorySlashTrimmingCases(string given, string expect) {
+      _task.OutputDir = given;
+      ExecuteExpectSuccess();
+      Assert.That(_task.LastResponseFile,
+                  Does.Contain("--csharp_out=" + expect));
     }
   };
 

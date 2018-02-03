@@ -32,7 +32,7 @@ namespace Grpc.Tools {
     /// All Proto files in the project. The task computes possible outputs
     /// from these proto files, and returns them in the PossibleOutputs list.
     /// Not all of these might be actually produced by protoc; this is dealt
-    /// with later in the ProtoCompile taks which returns the list of
+    /// with later in the ProtoCompile task which returns the list of
     /// files actually produced by the compiler.
     /// </summary>
     [Required]
@@ -41,7 +41,7 @@ namespace Grpc.Tools {
     /// <summary>
     /// Output items per each potential output. We do not look at existing
     /// cached dependency even if they exist, since file may be refactored,
-    /// affecting wheter or not gRPC code file is generated from a given proto.
+    /// affecting whether or not gRPC code file is generated from a given proto.
     /// Instead, all potentially possible generated sources are collected.
     /// It is a wise idea to generate empty files later for those potentials
     /// that are not actually created by protoc, so the dependency checks

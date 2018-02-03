@@ -66,7 +66,7 @@ C:\projects\foo\src\./foo.pb.h: C:/foo/include/google/protobuf/wrappers.proto\
         string file = ExtractFilenameFromLine(line, ix + 1, line.Length);
         if (file == "") {
           log.LogMessage(MessageImportance.Low,
-    $"Skippping unparsable dependency file {depFilename}.\nLine with error: '{line}'");
+    $"Skipping unparsable dependency file {depFilename}.\nLine with error: '{line}'");
           return new string[0];
         }
 

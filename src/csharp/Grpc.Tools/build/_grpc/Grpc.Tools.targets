@@ -28,14 +28,6 @@
     </PropertyGroup>
   </Target>
 
-  <!--<Target Name="_gRPC_PrepareCompile" AfterTargets="Protobuf_PrepareCompile">
-    <ItemGroup Condition=" '$(Language)' == 'C#' ">
-      <Protobuf_ExpectedOutputs
-        Include="@(Protobuf_ExpectedOutputs->'%(RelativeDir)%(Filename)Grpc%(Extension)')"
-        Condition=" '%(Source)' != '' and @(Protobuf_Compile->WithMetadataValue('GrpcServices','None')) == '' " />
-    </ItemGroup>
-  </Target>-->
-
   <Target Name="_gRPC_PrepareCompileOptions" AfterTargets="Protobuf_PrepareCompileOptions">
     <ItemGroup Condition=" '$(Language)' == 'C#' ">
       <Protobuf_Compile Condition=" %(Protobuf_Compile.GrpcServices) != 'None' ">
@@ -51,13 +43,4 @@
       </Protobuf_Compile>
     </ItemGroup>
   </Target>
-
-  <!--<Target Name="_gRPC_PrepareClean" AfterTargets="Protobuf_PrepareClean">
-    --><!-- Every generated C# file may have produced a Grpc.cs output. --><!--
-    <ItemGroup Condition=" '$(Language)' == 'C#' ">
-      <Protobuf_ExpectedOutputs
-        Include="@(Protobuf_ExpectedOutputs->'%(RelativeDir)%(Filename)Grpc%(Extension)')" />
-    </ItemGroup>
-  </Target>-->
-
 </Project>
