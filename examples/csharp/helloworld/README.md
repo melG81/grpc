@@ -3,16 +3,15 @@ gRPC in 3 minutes (C#)
 
 BACKGROUND
 -------------
-For this sample, we've already generated the server and client stubs from [helloworld.proto][].
-
-Example projects depend on the [Grpc](https://www.nuget.org/packages/Grpc/), [Grpc.Tools](https://www.nuget.org/packages/Grpc.Tools/)
+Example projects depend on the [Grpc](https://www.nuget.org/packages/Grpc/),
+[Grpc.Tools](https://www.nuget.org/packages/Grpc.Tools/)
 and [Google.Protobuf](https://www.nuget.org/packages/Google.Protobuf/) NuGet packages
 which have been already added to the project for you.
 
 PREREQUISITES
 -------------
 
-- Windows: .NET Framework 4.5+, Visual Studio 2013 or 2015
+- Windows: .NET Framework 4.5+, Visual Studio 2013 or higher
 - Linux: Mono 4+, MonoDevelop 5.9+
 - Mac OS X: Xamarin Studio 5.9+
 
