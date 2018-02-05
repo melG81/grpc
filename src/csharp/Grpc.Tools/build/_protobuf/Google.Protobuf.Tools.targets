@@ -311,8 +311,7 @@
   <Target Name="Protobuf_BeforeClean" />
   <Target Name="Protobuf_AfterClean" />
 
-  <!-- Main compile sequence. Certain steps are gated by the value $(DesignTimeBuild),
-       so the sequence is good for either design time or build time. -->
+  <!-- Main cleanup sequence. -->
   <Target Name="Protobuf_Clean"
           Condition=" '@(ProtoBuf)' != '' "
           DependsOnTargets=" Protobuf_BeforeClean;
@@ -320,22 +319,24 @@
                              _Protobuf_CoreClean;
                              Protobuf_AfterClean" />
 
-  <!-- Do proto compilation by default in a C# project. In other types, the user invoke
-       Protobuf_Compile directly if required. -->
+  <!-- Do proto cleanup by default in a C# project. In other types, the user should
+       invoke Protobuf_Clean directly if required. -->
   <Target Name="_Protobuf_Clean_AfterCsClean"
           AfterTargets="CoreClean"
           DependsOnTargets="Protobuf_Clean"
           Condition=" '$(Protobuf_ProjectSupported)' == 'true' and '$(Language)' == 'C#' " />
 
-  <!-- Extension point for non-C# project. Protobuf_Generator should be supported
-       by the ProtoCompile task, but we skip inferring expected outputs. All proto
-       files will be always recompiled with a warning, unless you add expectations
-       to the Protobuf_ExpectedOutputs collection.
+  <!-- Extension point for non-C# project. ProtoCompilerOutputs is not invoked for
+       non-C# projects, since inferring protoc outputs is required, so this is a
+       no-op in other project types. In your extension target populate the
+       Protobuf_ExpectedOutputs with all possible output. An option is to include
+       all existing outputs using Include with a wildcard, if you know where to look.
 
        Note this is like Protobuf_PrepareCompile, but uses @(Protobuf) regardless
        of the Compile metadata, to remove all possible outputs. Plugins should err
        on the side of overextending the Protobuf_ExpectedOutputs here.
-       All inferred ExpectedOutputs will be removed. -->
+
+       All ExpectedOutputs will be removed. -->
   <Target Name="Protobuf_PrepareClean" Condition=" '@(Protobuf)' != '' ">
     <!-- Predict expected names. -->
     <ProtoCompilerOutputs Condition=" '$(Language)' == 'C#' "
@@ -356,7 +357,7 @@
                                   Design-time support
    =================================================================================-->
 
-  <!-- Add all proto files to the SourceFilesProjectOutputGroupOutput, so that
+  <!-- Add all .proto files to the SourceFilesProjectOutputGroupOutput, so that
        * Visual Studio triggers a build when any of them changed;
        * The Pack target includes .proto files into the source package.  -->
   <Target Name="_Protobuf_SourceFilesProjectOutputGroup"
