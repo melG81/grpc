@@ -19,8 +19,6 @@ set VERSION=1.11.0-dev
 set NUGET=C:\nuget\nuget.exe
 set DOTNET=dotnet
 
-set -ex
-
 mkdir ..\..\artifacts
 
 @rem Collect the artifacts built by the previous build step if running on Jenkins
@@ -41,9 +39,9 @@ xcopy /Y /I nativelibs\csharp_ext_windows_x64\grpc_csharp_ext.dll ..\..\cmake\bu
 %DOTNET% pack --configuration Release Grpc.Auth --output ..\..\..\artifacts || goto :error
 %DOTNET% pack --configuration Release Grpc.HealthCheck --output ..\..\..\artifacts || goto :error
 %DOTNET% pack --configuration Release Grpc.Reflection --output ..\..\..\artifacts || goto :error
+%DOTNET% pack --configuration Release Grpc.Tools --output ..\..\..\artifacts || goto :error
 
 %NUGET% pack Grpc.nuspec -Version %VERSION% -OutputDirectory ..\..\artifacts || goto :error
-%NUGET% pack Grpc.Tools.nuspec -Version %VERSION% -OutputDirectory ..\..\artifacts
 
 @rem copy resulting nuget packages to artifacts directory
 xcopy /Y /I *.nupkg ..\..\artifacts\ || goto :error
